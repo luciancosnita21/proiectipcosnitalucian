@@ -1,0 +1,58 @@
+enum fieldValues : casa{ OPEN, CLOSED = 10, MINE, UNKNOWN, FLAG, RA };
+
+class fieldData
+{
+public:
+	fieldData() : value( CLOSED ), open( false ) {}
+	casa value;
+	bool open, mine, flag;
+};
+
+class game
+{
+	int dx, dy, mMines,nrMines;
+	fieldData* field; bool go;
+	int ump[6];
+public:
+	game()
+	{ if( field ) delete [] field; }
+
+	game( int x, int y )
+        {go = false; dx = x; dy = y;
+		field = new fieldData[x * y];
+		memset( field, 0, x * y * sizeof( fieldData ) );
+
+		nrMines = (  x * y )-8*(  x * y ) / 10;
+
+		mMines = 0;
+		srand (time(NULL));
+		int minx, miny, m = 0;
+		for( ; m < nrMines; m++ )
+		{
+			do
+			{ minx = rand() % dx; miny = rand() % dy; }
+			while( field[minx + dx * miny].mine );
+			field[minx + dx * miny].mine = true;
+		}
+		ump[0] = ' ';
+		ump[1] = '.';
+		ump[2] = '*';
+		ump[3] = '?';
+		ump[4] = 'F';
+		ump[5] = 'X';
+	}
+
+	void introduction()
+	{
+		string c, a;
+		int col, row;
+		while( !go )
+		{
+			drawBoard();
+			cout << "Introduceti litera corespunzatoare coloanei, numarul corespunzator randului si o actiune:\nActiuni: o -> deschide, f -> steag, ? ->necunoscut,d->descopera\n";
+			cin >> c >> row >> a;
+			if( c[0] > 'Z' ) c[0] -= 32; if( a[0] > 'Z' ) a[0] -= 32;
+			col = c[0] - 65;
+			makeMove( col, row-1, a );
+		}
+	}
